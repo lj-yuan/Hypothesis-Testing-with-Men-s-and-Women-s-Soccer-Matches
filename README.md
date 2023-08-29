@@ -3,7 +3,7 @@
 ### Project Description
 Use statistical testing skills to historical data of men's and women's international soccer matches! Perform a hypothesis test to determine if more goals are scored in women's international soccer matches than in men's.
 
-#### The question you are trying to determine the answer to is:
+#### The question for this project is: 
 
 Are more goals scored in women's international soccer matches than men's?
 

@@ -1,0 +1,88 @@
+---
+title: "Hypothesis Testing with Men's and Women's Soccer Matches"
+author: "Lunjing Yuan"
+date: '2023-08-29'
+output: word_document
+---
+
+```{r}
+#setwd(" ")
+setwd("~/Desktop/personal web/r projecrt/Hypothesis Testing with Men's and Women's Soccer Matches")
+```
+
+
+```{r}
+library(tidyverse)
+library(gridExtra)
+```
+
+
+```{r}
+# Load men's and women's datasets
+women <- read_csv("women_results.csv")
+men <- read_csv("men_results.csv")
+
+#view(women)
+#view(men)
+```
+
+```{r}
+# Filtering the matches and creating the test values
+men <- men %>%
+          filter(tournament == "FIFA World Cup", date > "2002-01-01") %>%
+          mutate(goals_scored = home_score + away_score)
+
+women <- women %>%
+          filter(tournament == "FIFA World Cup", date > "2002-01-01") %>%
+          mutate(goals_scored = home_score + away_score)
+
+```
+
+```{r}
+# Determine normality using histograms
+men_plot <- ggplot(men, aes(x = goals_scored)) + 
+  geom_histogram(fill = "red", color = "black", bins = 30) +
+  ggtitle("Distribution of Goals Scored - Men") + 
+  xlab("Goals Scored") +
+  ylab("Frequency") +
+  theme_minimal()
+
+women_plot <- ggplot(women, aes(x = goals_scored)) +
+  geom_histogram(fill = "blue", color = "black", bins = 30) + 
+  ggtitle("Distribution of Goals Scored - Women") +
+  xlab("Goals Scored") + 
+  ylab("Frequency") +
+  theme_minimal()
+
+# Add gridlines
+men_plot <- men_plot + theme(panel.grid.major = element_line(color = "gray90"),
+                         panel.grid.minor = element_line(color = "gray98"))
+
+women_plot <- women_plot + theme(panel.grid.major = element_line(color = "gray90"),
+                            panel.grid.minor = element_line(color = "gray98"))
+
+
+
+```
+
+```{r}
+# Goals scored is not normally distributed, so use Wilcoxon-Mann-Whitney test of two groups
+grid.arrange(men_plot, women_plot, nrow = 1)
+```
+
+```{r}
+# Run a Wilcoxon-Mann-Whitney test on goals_scored vs. group
+test_results <- wilcox.test(
+  x = women$goals_scored,
+  y = men$goals_scored,
+  alternative = "greater"
+)
+
+# Determine hypothesis test result using sig. level
+p_val <- round(test_results$p.value, 4)
+result <- ifelse(p_val <= 0.01, "reject", "fail to reject")
+
+# Create the result data frame
+result_df <- data.frame(p_val, result)
+result_df
+```
